@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthcare-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: healthcare-app
+  template:
+    metadata:
+      labels:
+        app: healthcare-app
+    spec:
+      containers:
+        - name: healthcare-app
+          image: nginx:stable
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MONGO_URL
+              value: "mongodb://healthcare-mongo:27017"
+            - name: MONGO_DB
+              value: "healthcare"
+            - name: JWT_SECRET
+              value: "supersecretkey"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20

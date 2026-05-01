@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Patient Records</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Patient Records</h1>
+            <p>Logged in as {{ user.full_name or user.username }}</p>
+        </header>
+
+        <section class="card header-row">
+            <div>
+                <h2>Add Patient</h2>
+                <p class="small-note">Logged in as {{ user.full_name or user.username }}</p>
+            </div>
+            <a class="button secondary" href="/logout">Logout</a>
+        </section>
+            <form method="post" action="/patients">
+                <label>Name</label>
+                <input type="text" name="name" required />
+                <label>Age</label>
+                <input type="number" name="age" min="0" max="130" required />
+                <label>Gender</label>
+                <input type="text" name="gender" required />
+                <label>Diagnosis</label>
+                <textarea name="diagnosis" required></textarea>
+                <label>Email</label>
+                <input type="email" name="email" />
+                <label>Notes</label>
+                <textarea name="notes"></textarea>
+                <button type="submit">Create Record</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Records</h2>
+            {% if patients %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Diagnosis</th>
+                            <th>Email</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.name }}</td>
+                            <td>{{ patient.age }}</td>
+                            <td>{{ patient.gender }}</td>
+                            <td>{{ patient.diagnosis }}</td>
+                            <td>{{ patient.email or "-" }}</td>
+                            <td>{{ patient.notes or "-" }}</td>
+                            <td class="actions-cell">
+                                <details class="update-panel">
+                                    <summary>Update</summary>
+                                    <form method="post" action="/patients/update/{{ patient.id }}">
+                                        <label>Name</label>
+                                        <input type="text" name="name" value="{{ patient.name }}" />
+                                        <label>Age</label>
+                                        <input type="number" name="age" min="0" max="130" value="{{ patient.age }}" />
+                                        <label>Gender</label>
+                                        <input type="text" name="gender" value="{{ patient.gender }}" />
+                                        <label>Diagnosis</label>
+                                        <textarea name="diagnosis">{{ patient.diagnosis }}</textarea>
+                                        <label>Email</label>
+                                        <input type="email" name="email" value="{{ patient.email or '' }}" />
+                                        <label>Notes</label>
+                                        <textarea name="notes">{{ patient.notes or '' }}</textarea>
+                                        <button type="submit">Save</button>
+                                    </form>
+                                </details>
+                                <form method="post" action="/patients/delete/{{ patient.id }}">
+                                    <button type="submit" class="danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No patient records yet.</p>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>

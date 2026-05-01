@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Healthcare Medical Records</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Healthcare Medical Records</h1>
+            <p>A cloud-native patient record management demo with FastAPI, MongoDB, Docker, and CI/CD.</p>
+        </header>
+
+        <section class="card">
+            <h2>Login</h2>
+            {% if error %}
+            <div class="alert">{{ error }}</div>
+            {% endif %}
+            <form id="loginForm" method="post" action="/login">
+                <label>Username</label>
+                <input type="text" name="username" value="admin" required />
+                <label>Password</label>
+                <input type="password" name="password" value="Health123!" required />
+                <button type="submit">Login</button>
+            </form>
+            <p class="note">Use admin / Health123! to sign in and manage records.</p>
+        </section>
+
+        <section class="card">
+            <h2>Get Started</h2>
+            <p>Once you obtain a token, use the <code>/patients</code> page to view, add, and update records.</p>
+            <p>API docs are available at <a href="/docs">/docs</a>.</p>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #f5f8ff;
+    margin: 0;
+    color: #1f2937;
+}
+
+.container {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 0 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.4rem;
+}
+
+header p {
+    color: #4b5563;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+input, textarea, button {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    padding: 10px 12px;
+    font-size: 1rem;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+button {
+    margin-top: 16px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+button.danger {
+    background: #dc2626;
+}
+
+button.danger:hover {
+    background: #b91c1c;
+}
+
+.update-panel {
+    margin-bottom: 12px;
+}
+
+.update-panel summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 10px;
+}
+
+.update-panel form {
+    margin-top: 12px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f9fafb;
+}
+
+.actions-cell {
+    min-width: 240px;
+    vertical-align: top;
+}
+
+.alert {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 14px;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.small-note {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.button.secondary {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: #d1d5db;
+    color: #111827;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+}
+
+.button.secondary:hover {
+    background: #9ca3af;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+table th,
+table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.note {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-top: 10px;
+}
