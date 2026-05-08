@@ -35,9 +35,14 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Assuming kubectl is configured in Jenkins agent
-                    sh "kubectl set image deployment/healthcare-app healthcare-app=${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} --namespace=healthcare-system"
-                    sh "kubectl rollout status deployment/healthcare-app --namespace=healthcare-system"
+                    // Use bat for Windows or ensure kubectl is available
+                    if (isUnix()) {
+                        sh "kubectl set image deployment/healthcare-app healthcare-app=${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} --namespace=healthcare-system"
+                        sh "kubectl rollout status deployment/healthcare-app --namespace=healthcare-system"
+                    } else {
+                        bat "kubectl set image deployment/healthcare-app healthcare-app=${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} --namespace=healthcare-system"
+                        bat "kubectl rollout status deployment/healthcare-app --namespace=healthcare-system"
+                    }
                 }
             }
         }
@@ -45,7 +50,13 @@ pipeline {
 
     post {
         always {
-            sh 'docker system prune -f'
+            script {
+                if (isUnix()) {
+                    sh 'docker system prune -f'
+                } else {
+                    bat 'docker system prune -f'
+                }
+            }
         }
     }
 }
