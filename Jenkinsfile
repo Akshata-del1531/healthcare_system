@@ -35,11 +35,13 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Use bat for Windows or ensure kubectl is available
+                    // Set KUBECONFIG for Docker Desktop
                     if (isUnix()) {
+                        sh "export KUBECONFIG=$HOME/.kube/config"
                         sh "kubectl set image deployment/healthcare-app healthcare-app=${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} --namespace=healthcare-system"
                         sh "kubectl rollout status deployment/healthcare-app --namespace=healthcare-system"
                     } else {
+                        bat "set KUBECONFIG=%USERPROFILE%\\.kube\\config"
                         bat "kubectl set image deployment/healthcare-app healthcare-app=${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} --namespace=healthcare-system"
                         bat "kubectl rollout status deployment/healthcare-app --namespace=healthcare-system"
                     }
