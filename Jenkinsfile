@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'healthcare-system'
-        REGISTRY = 'docker.io/yourusername'  // Replace 'yourusername' with your Docker Hub username
+        REGISTRY = 'docker.io/akshata234'  // Replace 'yourusername' with your Docker Hub username
     }
 
     stages {
