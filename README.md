@@ -1,6 +1,6 @@
 # Cloud-Native Healthcare Medical Records System
 
-A simple web-based healthcare record system built with FastAPI, MongoDB, Docker, GitHub Actions, and Kubernetes manifests.
+A simple web-based healthcare record system built with FastAPI, MongoDB, Docker, Jenkins CI/CD, and Kubernetes manifests.
 
 ## Features
 
@@ -9,7 +9,7 @@ A simple web-based healthcare record system built with FastAPI, MongoDB, Docker,
 - Minimal HTML frontend for record creation and listing
 - JWT-based login and token authentication
 - Docker containerization
-- GitHub Actions CI workflow
+- Jenkins CI/CD pipeline
 - Kubernetes deployment manifests for cloud-ready orchestration
 
 ## Local development
@@ -30,6 +30,18 @@ Open a terminal in the project root folder (`c:\Users\Akshata Madar\healthcare_s
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 4. Open a browser and visit `http://localhost:8000`.
+
+## CI/CD with Jenkins
+
+The project includes a Jenkinsfile for automated CI/CD pipeline. The pipeline:
+
+- Builds the Docker image
+- Pushes to a Docker registry
+- Deploys to Kubernetes cluster
+
+Configure Jenkins with:
+- Docker registry credentials (`docker-registry-credentials`)
+- Kubernetes cluster access (kubectl configured)
 
 ## Default user
 
