@@ -4,6 +4,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'healthcare-system'
         REGISTRY = 'docker.io/akshata234'
+        AWS_REGION = 'ap-south-1'
+        CLUSTER_NAME = 'healthcare-cluster'
     }
 
     stages {
@@ -17,7 +19,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                    docker.build("${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                 }
             }
         }
@@ -26,43 +28,46 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-registry-credentials') {
-
                         bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
-
                         bat "docker tag ${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${REGISTRY}/${DOCKER_IMAGE}:latest"
-
                         bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:latest"
                     }
                 }
             }
         }
 
+        stage('Configure AWS & EKS Access') {
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']
+                ]) {
+                    bat """
+                    aws --version
+                    aws sts get-caller-identity
+                    aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
+                    kubectl get nodes
+                    """
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    bat '''
-                    echo ===== Updating kubeconfig =====
-                    aws eks update-kubeconfig --region ap-south-1 --name healthcare-cluster
+                bat """
+                kubectl set image deployment/healthcare-app ^
+                healthcare-system=%REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER% ^
+                --namespace=healthcare-system
 
-                    echo ===== Checking cluster access =====
-                    kubectl get nodes
-
-                    echo ===== Deploying new image =====
-                    kubectl set image deployment/healthcare-app healthcare-system=docker.io/akshata234/healthcare-system:%BUILD_NUMBER% --namespace=healthcare-system
-
-                    echo ===== Waiting for rollout =====
-                    kubectl rollout status deployment/healthcare-app --namespace=healthcare-system
-                    '''
-                }
+                kubectl rollout status deployment/healthcare-app ^
+                --namespace=healthcare-system
+                """
             }
         }
     }
 
     post {
         always {
-            script {
-                bat 'docker system prune -f'
-            }
+            bat "docker system prune -f"
         }
     }
 }
