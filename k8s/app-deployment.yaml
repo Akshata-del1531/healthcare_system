@@ -3,37 +3,59 @@ kind: Deployment
 metadata:
   name: healthcare-app
   namespace: healthcare-system
+
 spec:
   replicas: 2
+
   selector:
     matchLabels:
       app: healthcare-app
+
   template:
     metadata:
       labels:
         app: healthcare-app
+
     spec:
       containers:
         - name: healthcare-app
-          image: healthcare-system:latest
+
+          image: 399095821516.dkr.ecr.ap-south-1.amazonaws.com/healthcare-app:latest
+
+          imagePullPolicy: Always
+
           ports:
             - containerPort: 8000
+
           env:
             - name: MONGO_URL
               value: "mongodb://healthcare-mongo:27017"
+
             - name: MONGO_DB
               value: "healthcare"
+
             - name: JWT_SECRET
               value: "supersecretkey"
+
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 5
             periodSeconds: 10
+
           livenessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 20
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
