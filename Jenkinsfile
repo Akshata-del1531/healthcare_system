@@ -19,7 +19,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                    docker.build("${REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}")
                 }
             }
         }
@@ -28,8 +28,8 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-registry-credentials') {
-                        bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
-                        bat "docker tag ${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${REGISTRY}/${DOCKER_IMAGE}:latest"
+                        bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        bat "docker tag ${REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER} ${REGISTRY}/${DOCKER_IMAGE}:latest"
                         bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:latest"
                     }
                 }
@@ -44,7 +44,9 @@ pipeline {
                     bat """
                     aws --version
                     aws sts get-caller-identity
+
                     aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
+
                     kubectl get nodes
                     """
                 }
