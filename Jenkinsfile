@@ -17,7 +17,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def dockerImage = docker.build("${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                    dockerImage = docker.build("${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                 }
             }
         }
@@ -25,7 +25,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', 'docker-registry-credentials') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-registry-credentials') {
 
                         bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
 
@@ -40,27 +40,19 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    bat '''
+                    echo ===== Updating kubeconfig =====
+                    aws eks update-kubeconfig --region ap-south-1 --name healthcare-cluster
 
-                    if (isUnix()) {
+                    echo ===== Checking cluster access =====
+                    kubectl get nodes
 
-                        sh "export KUBECONFIG=$HOME/.kube/config"
+                    echo ===== Deploying new image =====
+                    kubectl set image deployment/healthcare-app healthcare-system=docker.io/akshata234/healthcare-system:%BUILD_NUMBER% --namespace=healthcare-system
 
-                        sh """
-                        kubectl set image deployment/healthcare-app \
-                        healthcare-system=${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} \
-                        --namespace=healthcare-system
-                        """
-
-                        sh "kubectl rollout status deployment/healthcare-app --namespace=healthcare-system"
-
-                    } else {
-
-                        bat """
-                        set KUBECONFIG=C:\\ProgramData\\Jenkins\\.kube\\config
-                        kubectl set image deployment/healthcare-app healthcare-system=${REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} --namespace=healthcare-system
-                        kubectl rollout status deployment/healthcare-app --namespace=healthcare-system
-                        """
-                    }
+                    echo ===== Waiting for rollout =====
+                    kubectl rollout status deployment/healthcare-app --namespace=healthcare-system
+                    '''
                 }
             }
         }
@@ -69,13 +61,7 @@ pipeline {
     post {
         always {
             script {
-
-                if (isUnix()) {
-                    sh 'docker system prune -f'
-                } else {
-                    bat 'docker system prune -f'
-                }
-
+                bat 'docker system prune -f'
             }
         }
     }
