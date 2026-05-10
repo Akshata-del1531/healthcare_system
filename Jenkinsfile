@@ -59,28 +59,24 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
+       stage('Deploy to Kubernetes') {
+    steps {
+        withCredentials([
+            [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']
+        ]) {
+            bat """
+            aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
 
-                withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-credentials']
-                ]) {
+            kubectl set image deployment/healthcare-app ^
+            healthcare-app=%REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER% ^
+            --namespace=healthcare-system
 
-                    bat """
-                    aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
-
-                    kubectl set image deployment/healthcare-app ^
-                    healthcare-system=%REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER% ^
-                    --namespace=healthcare-system
-
-                    kubectl rollout status deployment/healthcare-app ^
-                    --namespace=healthcare-system
-                    """
-                }
-            }
+            kubectl rollout status deployment/healthcare-app ^
+            --namespace=healthcare-system
+            """
         }
     }
+}
 
     post {
         always {
