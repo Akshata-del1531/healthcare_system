@@ -67,7 +67,7 @@ pipeline {
             bat """
             aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
 
-            kubectl set image deployment/healthcare-app ^
+            kubectl set image deployment/healthcare-app healthcare-app=docker.io/akshata234/healthcare-system:${BUILD_NUMBER} --namespace=healthcare-system ^
             healthcare-app=%REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER% ^
             --namespace=healthcare-system
 
