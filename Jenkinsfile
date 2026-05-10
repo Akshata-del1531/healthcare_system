@@ -28,8 +28,11 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-registry-credentials') {
+
                         bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+
                         bat "docker tag ${REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER} ${REGISTRY}/${DOCKER_IMAGE}:latest"
+
                         bat "docker push ${REGISTRY}/${DOCKER_IMAGE}:latest"
                     }
                 }
@@ -39,10 +42,13 @@ pipeline {
         stage('Configure AWS & EKS Access') {
             steps {
                 withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']
                 ]) {
+
                     bat """
                     aws --version
+
                     aws sts get-caller-identity
 
                     aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
@@ -55,14 +61,23 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                bat """
-                kubectl set image deployment/healthcare-app ^
-                healthcare-system=%REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER% ^
-                --namespace=healthcare-system
 
-                kubectl rollout status deployment/healthcare-app ^
-                --namespace=healthcare-system
-                """
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-credentials']
+                ]) {
+
+                    bat """
+                    aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
+
+                    kubectl set image deployment/healthcare-app ^
+                    healthcare-system=%REGISTRY%/%DOCKER_IMAGE%:%BUILD_NUMBER% ^
+                    --namespace=healthcare-system
+
+                    kubectl rollout status deployment/healthcare-app ^
+                    --namespace=healthcare-system
+                    """
+                }
             }
         }
     }
@@ -70,6 +85,14 @@ pipeline {
     post {
         always {
             bat "docker system prune -f"
+        }
+
+        success {
+            echo 'Deployment completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
